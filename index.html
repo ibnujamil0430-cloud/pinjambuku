@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pusat Peminjaman Buku - SMAN 2 Unggulan Tanah Grogot (All-in-One)</title>
+  <style>
+    :root{
+      --merah:#d90429;
+      --biru:#0077b6;
+      --putih:#ffffff;
+      --abu:#f5f5f5;
+      --teks:#222222;
+      --radius:10px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Poppins',sans-serif;
+      background:var(--abu);
+      color:var(--teks);
+      animation:fadeInBody 0.9s ease-in;
+    }
+    @keyframes fadeInBody{from{opacity:0;}to{opacity:1;}}
+    header.appbar{
+      background:linear-gradient(90deg,var(--merah),var(--biru));
+      color:var(--putih);
+      padding:12px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      box-shadow:0 4px 8px rgba(0,0,0,0.15);
+    }
+    header.appbar h1{margin:0;font-size:18px}
+    main{max-width:1100px;margin:18px auto;padding:0 16px 40px;}
+    .welcome{
+      width:100%;
+      text-align:center;
+      background:var(--putih);
+      padding:12px 0;
+      font-weight:600;
+      color:var(--biru);
+      border-bottom:3px solid var(--merah);
+      font-size:18px;
+      border-radius:var(--radius) var(--radius) 0 0;
+      margin-bottom:12px;
+    }
+    .card{
+      background:var(--putih);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:0 3px 8px rgba(0,0,0,0.08);
+      margin-bottom:16px;
+    }
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+    .book{ background: var(--putih);
+border:1px solid #e6e6e6;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;transition:transform .18s,box-shadow .18s;}
+    .book:hover{transform:translateY(-6px);box-shadow:0 6px 18px rgba(0,0,0,0.08);}
+    label,select,input{display:block;}
+    select,input[type=text],input[type=datetime-local],input[type=password]{width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;margin-top:8px;font-size:14px;}
+    .btn{background:var(--biru);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .16s;font-weight:600;}
+    .btn:hover{background:var(--merah);transform:translateY(-2px);}
+    .btn.secondary{background:#666}
+    .btn.warn{background:var(--merah)}
+    .btn.danger{background:#d90429}
+    .small{font-size:13px;color:#666}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:60;}
+    .modal-content{background:var(--putih);padding:16px;border-radius:10px;width:95%;max-width:520px;}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+    th{background:var(--biru);color:#fff}
+    footer{background:linear-gradient(90deg,var(--biru),var(--merah));color:white;text-align:center;padding:12px;font-size:13px;margin-top:18px;border-radius:0}
+    .flex{display:flex;gap:12px;align-items:center}
+    @media (max-width:700px){ .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));} header.appbar h1{font-size:15px} }
+  </style>
+</head>
+<body>
+
+  <!-- APPBAR (shown when logged in) -->
+  <header class="appbar" id="appbar" style="display:none">
+    <h1>Pusat Peminjaman Buku - SMAN 2 Unggulan Tanah Grogot</h1>
+    <div id="appbarRight"></div>
+  </header>
+
+  <main>
+    <!-- HALAMAN AWAL -->
+    <section id="home" class="card" style="text-align:center;background:linear-gradient(120deg,var(--biru),var(--merah));color:white;border-radius:12px;">
+      <h1 style="margin:6px 0 4px">Selamat Datang di</h1>
+      <h2 style="margin:0 0 8px">Pusat Peminjaman Buku</h2>
+      <p style="margin:0 0 12px">Perpustakaan SMAN 2 Unggulan Tanah Grogot</p>
+      <div style="max-width:420px;margin:0 auto">
+        <input type="text" id="usernameInput" placeholder="Masukkan username (Nama Anda)" />
+        <div style="margin-top:12px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button id="btnEnterStudent" class="btn" style="background:white;color:var(--biru)">Masuk Siswa</button>
+          <button id="btnEnterAdmin" class="btn warn">Masuk Admin</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SISWA PAGE -->
+    <section id="pageStudent" style="display:none">
+      <div class="welcome">
+  <img src="logo.png" class="logo-welcome">
+  <h1>Selamat Datang di</h1>
+  <h2>Pusat Peminjaman Buku</h2>
+  <h3>Perpustakaan SMAN 2 Unggulan Tanah Grogot</h3>
+</div>
+
+
+      <div class="card flex" style="justify-content:space-between;align-items:center;">
+        <div style="font-weight:700">Halaman Peminjaman Siswa</div>
+        <div id="studentInfo" class="small"></div>
+        <div style="margin-left:auto">
+          <button id="btnLogoutStudent" class="btn secondary">Keluar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Pilih Kelas</h3>
+        <select id="selectClass">
+          <option value="">-- Pilih Kelas --</option>
+          <option value="10">Kelas 10</option>
+          <option value="11">Kelas 11</option>
+          <option value="12">Kelas 12</option>
+        </select>
+      </div>
+
+      <div id="booksContainer" class="grid"></div>
+
+      <div class="card">
+        <h3>📘 Pinjam Buku Lainnya (Form)</h3>
+        <label>Judul Buku</label>
+        <input type="text" id="otherTitle" placeholder="Tulis judul buku yang ingin dipinjam">
+        <label>Nama Peminjam</label>
+        <input type="text" id="otherNama" placeholder="Nama Anda">
+        <label>Kelas</label>
+        <select id="otherKelas">
+          <option value="">-- Pilih Kelas --</option>
+          <option>10A</option><option>10B</option><option>10C</option><option>10D</option><option>10E</option><option>10F</option>
+          <option>11A</option><option>11B</option><option>11C</option><option>11D</option><option>11E</option><option>11F</option>
+          <option>12A</option><option>12B</option><option>12C</option><option>12D</option><option>12E</option><option>12F</option>
+        </select>
+        <label>Tanggal & Jam Mulai</label>
+        <input type="datetime-local" id="otherMulai">
+        <label>Tanggal & Jam Kembali</label>
+        <input type="datetime-local" id="otherKembali">
+        <div style="margin-top:10px">
+          <button id="btnSubmitOther" class="btn">Kirim Pengajuan</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🕗 Pengajuan Anda (Menunggu ACC)</h3>
+        <ul id="studentPengajuan" class="small"></ul>
+      </div>
+
+      <div class="card">
+        <h3>📚 Pinjaman Aktif Anda</h3>
+        <ul id="studentActive" class="small"></ul>
+      </div>
+    </section>
+
+    <!-- MODAL PINJAM DARI LIST -->
+    <div id="modalPinjam" class="modal">
+      <div class="modal-content">
+        <h3>Pengajuan Peminjaman</h3>
+        <p id="modalBook" style="font-weight:700"></p>
+        <label>Nama Peminjam</label>
+        <input type="text" id="modalNama" placeholder="Nama Anda">
+        <label>Kelas</label>
+        <select id="modalKelas">
+          <option value="">-- Pilih Kelas --</option>
+          <option>10A</option><option>10B</option><option>10C</option><option>10D</option><option>10E</option><option>10F</option>
+          <option>11A</option><option>11B</option><option>11C</option><option>11D</option><option>11E</option><option>11F</option>
+          <option>12A</option><option>12B</option><option>12C</option><option>12D</option><option>12E</option><option>12F</option>
+        </select>
+        <label>Tanggal & Jam Mulai</label>
+        <input type="datetime-local" id="modalMulai">
+        <label>Tanggal & Jam Kembali</label>
+        <input type="datetime-local" id="modalKembali">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <button id="modalSubmit" class="btn">Kirim Pengajuan</button>
+          <button id="modalCancel" class="btn secondary">Batal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HALAMAN ADMIN -->
+    <section id="pageAdmin" style="display:none">
+
+  <div class="card flex" style="justify-content:space-between;align-items:center">
+    <h3>Panel Admin Perpustakaan</h3>
+    <button id="btnAdminLogout" class="btn secondary">Keluar Admin</button>
+  </div>
+
+  <!-- TABEL PENGAJUAN -->
+  <div class="card">
+    <h3>📋 Pengajuan (Menunggu ACC)</h3>
+    <table id="tblPengajuan">
+      <thead>
+        <tr>
+          <th>#</th><th>Nama</th><th>Kelas</th><th>Buku</th><th>Mulai</th><th>Kembali</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- PINJAMAN AKTIF -->
+  <div class="card">
+    <h3>📚 Pinjaman Aktif</h3>
+    <table id="tblActive">
+      <thead>
+        <tr>
+          <th>#</th><th>Nama</th><th>Kelas</th><th>Buku</th><th>Mulai</th><th>Kembali</th><th>Status</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- RIWAYAT DENGAN FITUR HAPUS -->
+  <div class="card">
+    <h3>📦 Riwayat (Arsip)</h3>
+    <ul id="adminHistory" class="small"></ul>
+    <button id="btnClearHistory" class="btn danger" style="margin-top:10px">🗑 Hapus Semua Riwayat</button>
+  </div>
+
+</section>
+
+  </main>
+
+  <footer>© 2025 Perpustakaan SMAN 2 Unggulan Tanah Grogot — Semua Hak Dilindungi</footer>
+
+<script>
+/* ------------------ Storage keys ------------------ */
+const KEY_PENGAJUAN = 'lib_pengajuan_all';
+const KEY_ACTIVE = 'lib_active_all';
+const KEY_HISTORY = 'lib_history_all';
+
+/* ------------------ Helpers ------------------ */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+function read(key){ return JSON.parse(localStorage.getItem(key) || '[]'); }
+function write(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
+function fmt(dt){ return new Date(dt).toLocaleString('id-ID'); }
+function escapeHtml(str){ if(!str && str !== 0) return ''; return String(str).replace(/[&<>"'`=\/]/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[s])); }
+
+/* ------------------ Elements ------------------ */
+const appbar = $('#appbar'), appbarRight = $('#appbarRight');
+const home = $('#home');
+const pageStudent = $('#pageStudent'), pageAdmin = $('#pageAdmin');
+const btnEnterStudent = $('#btnEnterStudent'), btnEnterAdmin = $('#btnEnterAdmin');
+const usernameInput = $('#usernameInput'), studentInfo = $('#studentInfo'), btnLogoutStudent = $('#btnLogoutStudent');
+const selectClass = $('#selectClass'), booksContainer = $('#booksContainer');
+
+const modalPinjam = $('#modalPinjam'), modalBook = $('#modalBook'), modalNama = $('#modalNama'), modalKelas = $('#modalKelas'), modalMulai = $('#modalMulai'), modalKembali = $('#modalKembali'), modalSubmit = $('#modalSubmit'), modalCancel = $('#modalCancel');
+
+const otherTitle = $('#otherTitle'), otherNama = $('#otherNama'), otherKelas = $('#otherKelas'), otherMulai = $('#otherMulai'), otherKembali = $('#otherKembali'), btnSubmitOther = $('#btnSubmitOther');
+
+const studentPengajuan = $('#studentPengajuan'), studentActive = $('#studentActive');
+
+const tblPengajuan = $('#tblPengajuan tbody'), tblActive = $('#tblActive tbody'), adminHistory = $('#adminHistory');
+
+const btnAdminLogout = $('#btnAdminLogout');
+const btnClearHistory = $('#btnClearHistory'); // tombol hapus riwayat admin
+
+/* ------------------ Data: buku ------------------ */
+const booksData = [
+  {subject:'Matematika',classes:['10','11','12']},
+  {subject:'Bahasa Indonesia',classes:['10','11','12']},
+  {subject:'Bahasa Inggris',classes:['10','11','12']},
+  {subject:'Agama',classes:['10','11','12']},
+  {subject:'PJOK',classes:['10','11','12']},
+  {subject:'PPKN',classes:['10','11','12']},
+  {subject:'Sejarah',classes:['10','11','12']},
+  {subject:'Seni Budaya',classes:['10','11','12']},
+  {subject:'Mulok',classes:['10','11','12']},
+  {subject:'Ekonomi',classes:['10']},
+  {subject:'Sosiologi',classes:['10']},
+  {subject:'Geografi',classes:['10']},
+  {subject:'Fisika',classes:['10']},
+  {subject:'Biologi',classes:['10']},
+  {subject:'Kimia',classes:['10']},
+  {subject:'Geografi Tingkat Lanjut',classes:['11','12']},
+  {subject:'Ekonomi Tingkat Lanjut',classes:['11','12']},
+  {subject:'Sosiologi Tingkat Lanjut',classes:['11','12']},
+  {subject:'Matematika Tingkat Lanjut',classes:['11','12']},
+  {subject:'Bahasa Inggris Tingkat Lanjut',classes:['11','12']},
+  {subject:'Bahasa Indonesia Tingkat Lanjut',classes:['11','12']},
+  {subject:'Kimia Tingkat Lanjut',classes:['11','12']},
+  {subject:'Fisika Tingkat Lanjut',classes:['11','12']},
+  {subject:'Biologi Tingkat Lanjut',classes:['11','12']},
+  {subject:'Informatika Tingkat Lanjut',classes:['11','12']}
+];
+
+/* ------------------ State ------------------ */
+let currentUser = '';
+let currentBook = null;
+
+/* ------------------ Init ------------------ */
+(function initStorage(){
+  if(localStorage.getItem(KEY_PENGAJUAN) === null) write(KEY_PENGAJUAN, []);
+  if(localStorage.getItem(KEY_ACTIVE) === null) write(KEY_ACTIVE, []);
+  if(localStorage.getItem(KEY_HISTORY) === null) write(KEY_HISTORY, []);
+})();
+
+/* ------------------ Navigation ------------------ */
+btnEnterStudent.addEventListener('click', ()=> {
+  const username = usernameInput.value.trim();
+  if(!username){ alert('Isi username (nama) terlebih dahulu.'); return; }
+  currentUser = username;
+  showAppbarFor('siswa', currentUser);
+  home.style.display = 'none';
+  pageStudent.style.display = 'block';
+  pageAdmin.style.display = 'none';
+  renderBooks(); loadStudentPengajuan(); loadStudentActive();
+  window.scrollTo(0,0);
+});
+
+btnLogoutStudent.addEventListener('click', ()=> location.reload());
+
+btnEnterAdmin.addEventListener('click', ()=> {
+  const user = prompt('Username admin (default: admin)');
+  if(user === null) return;
+  const pass = prompt('Password admin:');
+  if(pass === null) return;
+  if(user === 'admin' && pass === 'admin123'){
+    showAppbarFor('admin','Admin');
+    home.style.display = 'none';
+    pageStudent.style.display = 'none';
+    pageAdmin.style.display = 'block';
+    renderAdminAll();
+    window.scrollTo(0,0);
+  } else {
+    alert('Username atau password admin salah.');
+  }
+});
+
+btnAdminLogout.addEventListener('click', ()=> location.reload());
+
+function showAppbarFor(role, who){
+  appbar.style.display = 'flex';
+  appbarRight.innerHTML = `<span style="font-weight:700">${role === 'admin' ? 'Admin' : 'Siswa: '+escapeHtml(who)}</span>`;
+}
+
+/* ------------------ Render buku berdasarkan kelas ------------------ */
+function renderBooks(){
+  booksContainer.innerHTML = '';
+  const kelas = selectClass.value;
+  if(!kelas){
+    const info = document.createElement('div'); info.className='card small';
+    info.innerHTML = '<div class="small">Pilih kelas di atas untuk menampilkan buku paket sesuai kelas (10/11/12).</div>';
+    booksContainer.appendChild(info);
+    return;
+  }
+  const filtered = booksData.filter(b => b.classes.includes(kelas));
+  filtered.forEach(b=>{
+    const el = document.createElement('div'); el.className='book';
+    el.innerHTML = `<strong>${escapeHtml(b.subject)}</strong><div class="small">Buku paket kelas ${escapeHtml(kelas)}</div>`;
+    const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Pinjam';
+    btn.addEventListener('click', ()=> openModalForBook(b.subject));
+    el.appendChild(btn);
+    booksContainer.appendChild(el);
+  });
+}
+selectClass.addEventListener('change', renderBooks);
+
+/* ------------------ Modal actions ------------------ */
+function openModalForBook(book){
+  currentBook = book;
+  modalBook.textContent = book;
+  modalNama.value = currentUser || '';
+  modalKelas.value = '';
+  modalMulai.value = '';
+  modalKembali.value = '';
+  modalPinjam.style.display = 'flex';
+}
+modalCancel.addEventListener('click', ()=> { modalPinjam.style.display = 'none'; });
+
+modalSubmit.addEventListener('click', ()=> {
+  const nama = modalNama.value.trim();
+  const kelas = modalKelas.value;
+  const mulai = modalMulai.value;
+  const kembali = modalKembali.value;
+  if(!nama || !kelas || !mulai || !kembali){ alert('Lengkapi semua data di form.'); return; }
+  if(new Date(kembali) <= new Date(mulai)){ alert('Tanggal kembali harus setelah tanggal mulai.'); return; }
+
+  const pengajuan = read(KEY_PENGAJUAN);
+  pengajuan.push({ id: Date.now(), buku: currentBook, nama, kelas, mulai, kembali, status:'Menunggu ACC', ts: Date.now() });
+  write(KEY_PENGAJUAN, pengajuan);
+  modalPinjam.style.display = 'none';
+  if(nama === currentUser) loadStudentPengajuan();
+  alert('Pengajuan terkirim. Tunggu ACC admin.');
+});
+
+/* ------------------ Submit Other (form) ------------------ */
+btnSubmitOther.addEventListener('click', ()=> {
+  const judul = otherTitle.value.trim();
+  const nama = otherNama.value.trim();
+  const kelas = otherKelas.value;
+  const mulai = otherMulai.value;
+  const kembali = otherKembali.value;
+  if(!judul || !nama || !kelas || !mulai || !kembali){ alert('Lengkapi semua data form.'); return; }
+  if(new Date(kembali) <= new Date(mulai)){ alert('Tanggal kembali harus setelah tanggal mulai.'); return; }
+
+  const pengajuan = read(KEY_PENGAJUAN);
+  pengajuan.push({ id: Date.now(), buku: judul, nama, kelas, mulai, kembali, status:'Menunggu ACC', ts: Date.now() });
+  write(KEY_PENGAJUAN, pengajuan);
+  if(nama === currentUser) loadStudentPengajuan();
+  // clear form
+  otherTitle.value=''; otherNama.value=''; otherKelas.value=''; otherMulai.value=''; otherKembali.value='';
+  alert('Pengajuan buku lain berhasil dikirim. Tunggu ACC admin.');
+});
+
+/* ------------------ Student: load pengajuan & active ------------------ */
+function loadStudentPengajuan(){
+  const data = read(KEY_PENGAJUAN).filter(p => p.nama === currentUser);
+  studentPengajuan.innerHTML = '';
+  if(data.length === 0) { studentPengajuan.innerHTML = '<li class="small">Belum ada pengajuan.</li>'; return; }
+  data.slice().reverse().forEach(p => {
+    const li = document.createElement('li');
+    li.innerHTML = `${escapeHtml(p.buku)} — <span class="small">${escapeHtml(p.kelas)}</span> | Mulai: ${fmt(p.mulai)} | Kembali: ${fmt(p.kembali)} — <strong>${escapeHtml(p.status)}</strong>`;
+    studentPengajuan.appendChild(li);
+  });
+}
+
+function loadStudentActive(){
+  const data = read(KEY_ACTIVE).filter(a => a.nama === currentUser && a.status === 'Dipinjam');
+  studentActive.innerHTML = '';
+  if(data.length === 0){ studentActive.innerHTML = '<li class="small">Belum ada pinjaman aktif.</li>'; return; }
+  data.slice().reverse().forEach(a => {
+    const li = document.createElement('li');
+    li.innerHTML = `${escapeHtml(a.buku)} — <span class="small">${escapeHtml(a.kelas)}</span> | Kembali: ${fmt(a.kembali)} | Status: <strong>${escapeHtml(a.status)}</strong>`;
+    studentActive.appendChild(li);
+  });
+}
+
+/* ------------------ Admin: render all views ------------------ */
+function renderAdminAll(){
+  renderPengajuanTable();
+  renderActiveTable();
+  renderHistory();
+}
+
+function renderPengajuanTable(){
+  const data = read(KEY_PENGAJUAN);
+  tblPengajuan.innerHTML = '';
+  if(data.length === 0){
+    tblPengajuan.innerHTML = '<tr><td colspan="7" class="small">Belum ada pengajuan.</td></tr>'; return;
+  }
+  data.forEach((p, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${idx+1}</td>
+      <td>${escapeHtml(p.nama)}</td>
+      <td>${escapeHtml(p.kelas)}</td>
+      <td>${escapeHtml(p.buku)}</td>
+      <td>${fmt(p.mulai)}</td>
+      <td>${fmt(p.kembali)}</td>
+      <td>
+        ${p.status === 'Menunggu ACC' ? `<button class="btn" data-id="${p.id}" data-action="acc">ACC</button>` : `<span class="small">${escapeHtml(p.status)}</span>`}
+        <button class="btn secondary" data-id="${p.id}" data-action="del">Hapus</button>
+      </td>`;
+    tblPengajuan.appendChild(tr);
+  });
+  // attach listeners
+  $$('#tblPengajuan button').forEach(btn=>{
+    const id = btn.getAttribute('data-id'); const action = btn.getAttribute('data-action');
+    if(action === 'acc') btn.addEventListener('click', ()=> adminAcc(Number(id)));
+    if(action === 'del') btn.addEventListener('click', ()=> adminDeletePengajuan(Number(id)));
+  });
+}
+
+function renderActiveTable(){
+  const data = read(KEY_ACTIVE);
+  tblActive.innerHTML = '';
+  if(data.length === 0){
+    tblActive.innerHTML = '<tr><td colspan="8" class="small">Belum ada pinjaman aktif.</td></tr>'; return;
+  }
+  data.forEach((a, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${idx+1}</td>
+      <td>${escapeHtml(a.nama)}</td>
+      <td>${escapeHtml(a.kelas)}</td>
+      <td>${escapeHtml(a.buku)}</td>
+      <td>${fmt(a.mulai)}</td>
+      <td>${fmt(a.kembali)}</td>
+      <td id="st-${a.id}">${escapeHtml(a.status)}</td>
+      <td>
+        ${a.status === 'Dipinjam' ? `<button class="btn" data-id="${a.id}" data-action="return">Tandai Kembali</button>` : ''}
+        <button class="btn secondary" data-id="${a.id}" data-action="remove">Hapus</button>
+      </td>`;
+    tblActive.appendChild(tr);
+  });
+  $$('#tblActive button').forEach(btn=>{
+    const id = btn.getAttribute('data-id'); const action = btn.getAttribute('data-action');
+    if(action === 'return') btn.addEventListener('click', ()=> adminMarkReturned(Number(id)));
+    if(action === 'remove') btn.addEventListener('click', ()=> adminRemoveActive(Number(id)));
+  });
+}
+
+function renderHistory(){
+  const data = read(KEY_HISTORY);
+  adminHistory.innerHTML = '';
+  if(data.length === 0){
+    adminHistory.innerHTML = '<li class="small">Belum ada riwayat.</li>';
+    // sembunyikan tombol hapus saat tidak ada riwayat
+    if(btnClearHistory) btnClearHistory.style.display = 'none';
+    return;
+  }
+  // tampilkan tombol hapus riwayat jika ada data
+  if(btnClearHistory) btnClearHistory.style.display = 'inline-block';
+  data.slice().reverse().forEach(h=>{
+    const li = document.createElement('li');
+    li.textContent = `${h.nama} (${h.kelas}) — ${h.buku} | Mulai: ${fmt(h.mulai)} | Kembali: ${fmt(h.kembali)} | Selesai: ${fmt(h.finishedAt)}`;
+    adminHistory.appendChild(li);
+  });
+}
+
+/* ------------------ Admin actions ------------------ */
+function adminAcc(id){
+  let pengajuan = read(KEY_PENGAJUAN);
+  const idx = pengajuan.findIndex(p => p.id === id);
+  if(idx === -1) return alert('Pengajuan tidak ditemukan.');
+  const item = pengajuan[idx];
+  // move to active
+  const active = read(KEY_ACTIVE);
+  const activeItem = {...item, id: Date.now(), status:'Dipinjam', approvedAt: Date.now()};
+  active.push(activeItem);
+  write(KEY_ACTIVE, active);
+  // remove from pengajuan
+  pengajuan.splice(idx,1);
+  write(KEY_PENGAJUAN, pengajuan);
+  renderAdminAll();
+  alert('Pengajuan disetujui — dipindahkan ke daftar pinjaman aktif.');
+}
+
+function adminDeletePengajuan(id){
+  if(!confirm('Hapus pengajuan ini?')) return;
+  let pengajuan = read(KEY_PENGAJUAN);
+  pengajuan = pengajuan.filter(p => p.id !== id);
+  write(KEY_PENGAJUAN, pengajuan);
+  renderPengajuanTable();
+}
+
+function adminMarkReturned(id){
+  if(!confirm('Tandai buku ini telah dikembalikan?')) return;
+  let active = read(KEY_ACTIVE);
+  const idx = active.findIndex(a => a.id === id);
+  if(idx === -1) return alert('Item tidak ditemukan.');
+  const item = active[idx];
+  // move to history
+  const history = read(KEY_HISTORY);
+  history.push({...item, status:'Selesai', finishedAt: Date.now()});
+  write(KEY_HISTORY, history);
+  // remove from active
+  active.splice(idx,1);
+  write(KEY_ACTIVE, active);
+  renderAdminAll();
+  alert('Berhasil menandai sebagai kembali. Item dipindahkan ke riwayat.');
+}
+
+function adminRemoveActive(id){
+  if(!confirm('Hapus item pinjaman aktif ini?')) return;
+  let active = read(KEY_ACTIVE);
+  active = active.filter(a => a.id !== id);
+  write(KEY_ACTIVE, active);
+  renderActiveTable();
+}
+
+/* ------------------ Periodic checks & notifications ------------------ */
+setInterval(()=> {
+  // check active for due soon / overdue and flag in localStorage
+  const active = read(KEY_ACTIVE);
+  const now = Date.now();
+  let changed = false;
+  active.forEach(a=>{
+    if(a.status === 'Dipinjam'){
+      const due = new Date(a.kembali).getTime();
+      const diff = due - now;
+      // mark near due (< 1 hour) with flag notifySoon; overdue notifyOver
+      if(diff <= 0 && !a._overdueNotified){
+        a._overdueNotified = true; changed = true;
+        // only notify if admin page visible
+        if(pageAdmin.style.display !== 'none') alert(`⚠️ OVERDUE: ${a.nama} — ${a.buku}`);
+      } else if(diff > 0 && diff <= (60*60*1000) && !a._soonNotified){
+        a._soonNotified = true; changed = true;
+        if(pageAdmin.style.display !== 'none') console.info(`Info: ${a.nama} akan jatuh tempo dalam < 1 jam: ${a.buku}`);
+      }
+    }
+  });
+  if(changed) write(KEY_ACTIVE, active);
+}, 60*1000);
+
+/* ------------------ Utility: render admin when storage changes in another tab ------------------ */
+window.addEventListener('storage', (e)=>{
+  if([KEY_PENGAJUAN, KEY_ACTIVE, KEY_HISTORY].includes(e.key)){
+    if(pageAdmin.style.display !== 'none') renderAdminAll();
+    if(pageStudent.style.display !== 'none'){ loadStudentPengajuan(); loadStudentActive(); }
+  }
+});
+
+/* ------------------ Initial UX: hide modals on background click ------------------ */
+modalPinjam.addEventListener('click', (ev)=> { if(ev.target === modalPinjam) modalPinjam.style.display = 'none'; });
+
+/* ------------------ FITUR: HAPUS SEMUA RIWAYAT (untuk admin) ------------------ */
+if(btnClearHistory){
+  btnClearHistory.addEventListener('click', ()=>{
+    const data = read(KEY_HISTORY);
+    if(!data || data.length === 0){
+      alert('Tidak ada riwayat untuk dihapus.');
+      return;
+    }
+    if(!confirm('Yakin ingin menghapus semua riwayat? Tindakan ini tidak dapat dibatalkan.')) return;
+    // hapus semua riwayat
+    write(KEY_HISTORY, []);
+    renderHistory();
+    alert('Semua riwayat telah dihapus.');
+  });
+}
+
+/* ------------------ Ensure student views update after actions ------------------ */
+/* Update when admin approves etc. (render called in those functions) */
+
+/* ------------------ End of script ------------------ */
+</script>
+</body>
+</html>
